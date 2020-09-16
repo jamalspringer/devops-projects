@@ -65,14 +65,8 @@ services:
 
 volumes:
   redis-cluster_data-0:
-    driver: local
   redis-cluster_data-1:
-    driver: local
   redis-cluster_data-2:
-    driver: local
   redis-cluster_data-3:
-    driver: local
   redis-cluster_data-4:
-    driver: local
   redis-cluster_data-5:
-    driver: local
