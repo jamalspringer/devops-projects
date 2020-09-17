@@ -25,3 +25,8 @@ Implement Ansible Playbook which deploys MySQL master and slave in Docker contai
 
 # Tech Test Solution:
 
+Dependencies:
+
+Vagrant
+Virtualbox
+
