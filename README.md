@@ -42,7 +42,9 @@ Install dependencies:
 Clone project and run setup:
 
 git clone https://github.com/jamalspringer/devops-projects.git
+
 cd devops-projects
+
 vagrant up
 
 
