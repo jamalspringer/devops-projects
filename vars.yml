@@ -1,4 +1,14 @@
 ---
 
+DOCKER_COMPOSE_VERSION: "1.27.3"
 RABBITMQ_DEFAULT_USER: "admin"
 RABBITMQ_DEFAULT_PASS: "admin"   
+CLUSTERED: "true"
+CLUSTER_WITH: "rabbit1"
+RAM_NODE: "true"
+REDIS_PASSWORD: "bitnami"
+REDIS_NODES: "redis-node-0 redis-node-1 redis-node-2"
+REDISCLI_AUTH: "bitnami"
+REDIS_CLUSTER_REPLICAS: "1"
+REDIS_CLUSTER_CREATOR: "yes"
+

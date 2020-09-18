@@ -15,8 +15,8 @@
             - yum-utils
             - device-mapper-persistent-data
             - lvm2
-            - python-pip
-    
+            - python3
+
         - name: Configuring docker-ce repo
           get_url:
             url: https://download.docker.com/linux/centos/docker-ce.repo
@@ -24,13 +24,9 @@
             mode: 0644
     
         - name: Installing docker
-          yum:   
-            name: "{{ item }}"
+          dnf:   
+            name: docker-ce-3:18.09.1-3.el7
             state: latest
-          loop:
-            - docker-ce
-            - docker-ce-cli 
-            - containerd.io
             
         - name: Starting and Enabling Docker service
           service:
@@ -42,11 +38,114 @@
           pip:
             name: docker 
 
-        - name: Install docker-compose python package 
-          pip: 
-            name: docker-compose
 
-    
-        - name: Setting up radrabbitmq cluster
-          docker_service:
-            project_src: ./rabbitmq_cluster/ 
+        - name: Setup RabbitMQ 1
+          docker_container:
+            name: rabbit1
+            hostname: rabbit1
+            image: lucifer8591/rabbitmq-server:3.7.17
+            state: started
+            ports:
+            - "5672:5672"
+            - "15672:15672"
+            - "4369":4369"
+            env:
+              RABBITMQ_DEFAULT_USER: "{{ RABBITMQ_DEFAULT_USER }}"
+              RABBITMQ_DEFAULT_PASS: "{{ RABBITMQ_DEFAULT_PASS }}"
+
+        - name: Setup RabbitMQ 2
+          docker_container:
+            name: rabbit2
+            hostname: rabbit2
+            image: lucifer8591/rabbitmq-server:3.7.17
+            state: started
+            links:
+              - rabbit1
+            env:
+              CLUSTERED: "{{ CLUSTERED }}"
+              CLUSTER_WITH: "{{ CLUSTER_WITH }}"
+              RAM_NODE: "{{ RAM_NODE }}"
+            ports:
+              - "5673:5672"
+              - "15673:15672"
+
+        - name: Setup RabbitMQ 3
+          docker_container:
+            name: rabbit3
+            hostname: rabbit3
+            image: lucifer8591/rabbitmq-server:3.7.17
+            state: started
+            links:
+              - rabbit1
+              - rabbit2
+            env:
+              CLUSTERED: "{{ CLUSTERED }}"
+              CLUSTER_WITH: "{{ CLUSTER_WITH }}"
+            ports:
+            - "5674:5672"
+
+        - name: Create a redis1 volume
+          docker_volume:
+            name: redis-cluster_data-1
+
+        - name: Create a redis2 volume
+          docker_volume:
+            name: redis-cluster_data-2
+
+        - name: Create a redis3 volume
+          docker_volume:
+            name: redis-cluster_data-3
+
+        - name: Setup redis node 0
+          docker_container:
+            name: redis-node-0
+            hostname: redis-node-0
+            image: docker.io/bitnami/redis-cluster:6.0-debian-10
+            volumes:
+              - redis-cluster_data-0:/bitnami/redis/data
+            ports:
+              - "6379:6379"
+            env:
+              REDIS_PASSWORD: "{{ REDIS_PASSWORD }}"
+              REDIS_NODES: "{{ REDIS_NODES }}"
+
+        - name: Setup redis node 1
+          docker_container:
+            name: redis-node-1
+            hostname: redis-node-1
+            image: docker.io/bitnami/redis-cluster:6.0-debian-10
+            volumes:
+              - redis-cluster_data-1:/bitnami/redis/data
+            env:
+              REDIS_PASSWORD: "{{ REDIS_PASSWORD }}"
+              REDIS_NODES: "{{ REDIS_NODES }}"
+
+        - name: Setup redis node 2
+          docker_container:
+            name: redis-node-2
+            hostname: redis-node-2
+            image: docker.io/bitnami/redis-cluster:6.0-debian-10
+            volumes:
+              - redis-cluster_data-2:/bitnami/redis/data
+            ports:
+              - "6380:6379"
+            env:
+              REDIS_PASSWORD: "{{ REDIS_PASSWORD }}"
+              REDIS_NODES: "{{ REDIS_NODES }}"
+
+        - name: Setup redis cluster init
+          docker_container:
+            name: redis-cluster-init
+            hostname: redis-cluster-init
+            image: docker.io/bitnami/redis-cluster:6.0-debian-10
+            env:
+              REDIS_PASSWORD: "{{ REDIS_PASSWORD }}"
+              REDIS_NODES: "{{ REDIS_NODES }}"
+              REDISCLI_AUTH: "{{ REDISCLI_AUTH }}"
+              REDIS_CLUSTER_REPLICAS: "{{ REDIS_CLUSTER_REPLICAS }}"
+              REDIS_CLUSTER_CREATOR: "{{ REDIS_CLUSTER_CREATOR }}"
+
+
+
+        
+
