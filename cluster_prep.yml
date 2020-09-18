@@ -48,7 +48,7 @@
             ports:
             - "5672:5672"
             - "15672:15672"
-            - "4369":4369"
+            - "4369"
             env:
               RABBITMQ_DEFAULT_USER: "{{ RABBITMQ_DEFAULT_USER }}"
               RABBITMQ_DEFAULT_PASS: "{{ RABBITMQ_DEFAULT_PASS }}"
@@ -100,9 +100,9 @@
           docker_volume:
             name: mysql-master-data
 
-          - name: Create a mysql slave volume
-            docker_volume:
-              name: mysql-slave-data
+        - name: Create a mysql slave volume
+          docker_volume:
+            name: mysql-slave-data
 
 
         - name: Setup redis node 0
