@@ -96,6 +96,15 @@
           docker_volume:
             name: redis-cluster_data-3
 
+        - name: Create a mysql master volume
+          docker_volume:
+            name: mysql-master-data
+
+          - name: Create a mysql slave volume
+            docker_volume:
+              name: mysql-slave-data
+
+
         - name: Setup redis node 0
           docker_container:
             name: redis-node-0
@@ -145,6 +154,38 @@
               REDIS_CLUSTER_REPLICAS: "{{ REDIS_CLUSTER_REPLICAS }}"
               REDIS_CLUSTER_CREATOR: "{{ REDIS_CLUSTER_CREATOR }}"
 
+        - name: Setup mysql master
+          docker_container:
+            name: mysql-master
+            hostname: mysql-master
+            image: bitnami/mysql:latest
+            volumes:
+              - mysql-master-data:/bitnami/redis/data
+            ports:
+              - '3306'
+            env:
+              MYSQL_REPLICATION_MODE: "master"
+              MYSQL_REPLICATION_USER: "{{ MYSQL_REPLICATION_USER }}"
+              MYSQL_REPLICATION_PASSWORD: "{{ MYSQL_REPLICATION_PASSWORD }}"
+              MYSQL_ROOT_PASSWORD: "{{ MYSQL_ROOT_PASSWORD }}"
+              MYSQL_USER: "{{ MYSQL_USER }}"
+              MYSQL_PASSWORD: "{{ MYSQL_PASSWORD }}"
+              MYSQL_DATABASE: "{{ MYSQL_DATABASE }}"
+
+        - name: Setup mysql slave 
+          docker_container:
+            name: mysql-slave
+            hostname: mysql-slave
+            image: bitnami/mysql:latest
+            ports:
+              - '3306'
+            env:
+              MYSQL_REPLICATION_MODE: "slave"
+              MYSQL_REPLICATION_USER: "{{ MYSQL_REPLICATION_USER }}"
+              MYSQL_REPLICATION_PASSWORD: "{{ MYSQL_REPLICATION_PASSWORD }}"
+              MYSQL_MASTER_HOST: "{{ MYSQL_MASTER_HOST }}"
+              MYSQL_MASTER_PORT_NUMBER: "{{ MYSQL_MASTER_PORT_NUMBER }}"
+              MYSQL_MASTER_ROOT_PASSWORD: "{{ MYSQL_MASTER_ROOT_PASSWORD }}"
 
 
         
