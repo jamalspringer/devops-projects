@@ -38,6 +38,10 @@
           pip:
             name: docker 
 
+        - name: create network for rabbitmq servers
+          docker_network:
+            name: cluster_network
+
 
         - name: Setup RabbitMQ 1
           docker_container:
@@ -49,6 +53,8 @@
             - "5672:5672"
             - "15672:15672"
             - "4369"
+            networks:
+              - name: cluster_network 
             env:
               RABBITMQ_DEFAULT_USER: "{{ RABBITMQ_DEFAULT_USER }}"
               RABBITMQ_DEFAULT_PASS: "{{ RABBITMQ_DEFAULT_PASS }}"
@@ -68,6 +74,10 @@
             ports:
               - "5673:5672"
               - "15673:15672"
+              - "4369"
+            networks:
+            - name: cluster_network
+
 
         - name: Setup RabbitMQ 3
           docker_container:
@@ -83,6 +93,10 @@
               CLUSTER_WITH: "{{ CLUSTER_WITH }}"
             ports:
             - "5674:5672"
+            - "4369"
+            networks:
+            - name: cluster_network
+
 
         - name: Create a redis1 volume
           docker_volume:
@@ -125,6 +139,8 @@
             image: docker.io/bitnami/redis-cluster:6.0-debian-10
             volumes:
               - redis-cluster_data-1:/bitnami/redis/data
+            ports:
+              - "6379"
             env:
               REDIS_PASSWORD: "{{ REDIS_PASSWORD }}"
               REDIS_NODES: "{{ REDIS_NODES }}"
@@ -147,6 +163,8 @@
             name: redis-cluster-init
             hostname: redis-cluster-init
             image: docker.io/bitnami/redis-cluster:6.0-debian-10
+            ports:
+              - "6379"
             env:
               REDIS_PASSWORD: "{{ REDIS_PASSWORD }}"
               REDIS_NODES: "{{ REDIS_NODES }}"
