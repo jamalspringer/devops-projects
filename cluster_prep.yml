@@ -98,6 +98,10 @@
             - name: cluster_network
 
 
+        - name: Create a redis0 volume
+          docker_volume:
+            name: redis-cluster_data-0
+
         - name: Create a redis1 volume
           docker_volume:
             name: redis-cluster_data-1
@@ -105,10 +109,6 @@
         - name: Create a redis2 volume
           docker_volume:
             name: redis-cluster_data-2
-
-        - name: Create a redis3 volume
-          docker_volume:
-            name: redis-cluster_data-3
 
         - name: Create a mysql master volume
           docker_volume:
@@ -178,7 +178,7 @@
             hostname: mysql-master
             image: bitnami/mysql:latest
             volumes:
-              - mysql-master-data:/bitnami/redis/data
+              - mysql-master-data:/bitnami/mysql/data
             ports:
               - '3306'
             env:
