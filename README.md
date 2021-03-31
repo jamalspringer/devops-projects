@@ -1,7 +1,5 @@
-# Tech Test Requirements:
+#  Requirements:
 
-Test tasks
-Requirement to task implementation:
 
 ● Solution must contain a valid Vagrantfile to test solution
 
