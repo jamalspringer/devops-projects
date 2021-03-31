@@ -28,6 +28,9 @@
             name: docker-ce
             state: latest
             
+        - name: reload 
+          command: systemctl daemon-reload
+            
         - name: Starting and Enabling Docker service
           service:
             name: docker
