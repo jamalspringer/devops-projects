@@ -25,7 +25,7 @@
     
         - name: Installing docker
           dnf:   
-            name: docker-ce
+            name: docker
             state: latest
             
         - name: Starting and Enabling Docker service
